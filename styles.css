@@ -248,6 +248,74 @@ body {
   gap: 0.6rem;
 }
 
+/* Cloud Sync Status Indicator */
+.cloud-sync-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sync-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: background-color var(--transition-fast);
+}
+
+.sync-indicator-dot.dot-online {
+  background-color: var(--color-success-bright);
+  box-shadow: 0 0 8px rgba(46, 160, 67, 0.6);
+  animation: pulseSync 2.5s infinite;
+}
+
+.sync-indicator-dot.dot-syncing {
+  background-color: var(--color-warning-bright);
+  box-shadow: 0 0 8px rgba(227, 179, 65, 0.6);
+  animation: pulseSync 0.8s infinite;
+}
+
+.sync-indicator-dot.dot-offline {
+  background-color: var(--color-danger);
+}
+
+@keyframes pulseSync {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.btn-sync-refresh {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-sync-refresh:hover {
+  color: var(--accent-primary);
+  transform: rotate(90deg);
+}
+
+.btn-sync-refresh.spinning {
+  animation: spinSync 1s linear infinite;
+}
+
+@keyframes spinSync {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

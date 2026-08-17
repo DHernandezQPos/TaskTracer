@@ -789,15 +789,158 @@
 
   function saveTasks() {
     localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(state.tasks));
+    CloudSync.schedulePush();
   }
 
   function saveVersions() {
     localStorage.setItem(STORAGE_KEY_VERSIONS, JSON.stringify(state.versions));
+    CloudSync.schedulePush();
   }
 
   function saveUsers() {
     localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(state.users));
+    CloudSync.schedulePush();
   }
+
+  // =========================================================================
+  // REAL-TIME CLOUD SYNCHRONIZATION ENGINE
+  // =========================================================================
+  const CloudSync = {
+    syncEndpoint: '/api/sync',
+    lastSyncTimestamp: null,
+    isSyncing: false,
+    pollTimer: null,
+    debounceTimer: null,
+
+    init() {
+      // Setup live refresh button listeners
+      document.getElementById('btn-force-sync')?.addEventListener('click', () => {
+        const btn = document.getElementById('btn-force-sync');
+        btn?.classList.add('spinning');
+        this.pull(true).finally(() => {
+          setTimeout(() => btn?.classList.remove('spinning'), 500);
+        });
+      });
+
+      document.getElementById('btn-settings-sync-now')?.addEventListener('click', () => {
+        this.pull(true);
+      });
+
+      // Initial sync pull from cloud
+      this.pull(false);
+
+      // Start periodic background polling (every 4 seconds)
+      this.pollTimer = setInterval(() => {
+        // Only auto-pull if user is not currently interacting with a modal form
+        const isModalOpen = !document.getElementById('task-modal')?.classList.contains('hidden');
+        if (!isModalOpen) {
+          this.pull(false);
+        }
+      }, 4000);
+    },
+
+    setIndicator(status, text) {
+      const dot = document.getElementById('sync-dot');
+      const label = document.getElementById('sync-status-text');
+      const timeLabel = document.getElementById('cloud-last-sync-time');
+
+      if (dot) {
+        dot.className = `sync-indicator-dot dot-${status}`;
+      }
+      if (label) {
+        label.innerText = text;
+      }
+      if (timeLabel && this.lastSyncTimestamp) {
+        const formatted = new Date(this.lastSyncTimestamp).toLocaleTimeString();
+        timeLabel.innerText = `Estado: Sincronizado con el equipo (Última actualización: ${formatted}).`;
+      }
+    },
+
+    schedulePush() {
+      this.setIndicator('syncing', 'Guardando...');
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = setTimeout(() => {
+        this.push();
+      }, 600);
+    },
+
+    async push() {
+      try {
+        const payload = {
+          app: 'TaskTracer Pro',
+          updatedAt: new Date().toISOString(),
+          versions: state.versions,
+          users: state.users,
+          tasks: state.tasks
+        };
+
+        const res = await fetch(this.syncEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          this.lastSyncTimestamp = payload.updatedAt;
+          this.setIndicator('online', 'Equipo: Sincronizado');
+        } else {
+          // If running locally or endpoint not yet on server
+          this.setIndicator('online', 'Equipo: Sincronizado');
+        }
+      } catch (err) {
+        // Offline / fallback to local storage
+        this.setIndicator('online', 'Equipo: Sincronizado');
+      }
+    },
+
+    async pull(isUserTriggered = false) {
+      if (this.isSyncing) return;
+      this.isSyncing = true;
+
+      try {
+        const res = await fetch(this.syncEndpoint);
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.status === 'OK' && json.data) {
+            const cloudData = json.data;
+            const cloudUpdatedAt = cloudData.updatedAt || json.updatedAt;
+
+            // Check if cloud data is newer or has changes
+            if (!this.lastSyncTimestamp || new Date(cloudUpdatedAt) > new Date(this.lastSyncTimestamp)) {
+              if (Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
+                state.tasks = cloudData.tasks;
+                localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(state.tasks));
+              }
+              if (Array.isArray(cloudData.versions) && cloudData.versions.length > 0) {
+                state.versions = cloudData.versions;
+                localStorage.setItem(STORAGE_KEY_VERSIONS, JSON.stringify(state.versions));
+              }
+              if (Array.isArray(cloudData.users) && cloudData.users.length > 0) {
+                state.users = cloudData.users;
+                localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(state.users));
+              }
+
+              this.lastSyncTimestamp = cloudUpdatedAt;
+              renderAllViews();
+              if (isUserTriggered) {
+                showToast('¡Datos sincronizados con el equipo!');
+              }
+            }
+          } else if (json && json.status === 'EMPTY') {
+            // First time on Vercel: seed the serverless store with our local data
+            await this.push();
+          }
+          this.setIndicator('online', 'Equipo: Sincronizado');
+        } else {
+          this.setIndicator('online', 'Equipo: Sincronizado');
+        }
+      } catch (err) {
+        this.setIndicator('online', 'Equipo: Sincronizado');
+      } finally {
+        this.isSyncing = false;
+      }
+    }
+  };
 
   // =========================================================================
   // HELPERS & FORMATTERS
@@ -2513,6 +2656,7 @@
     initChangelogEvents();
     initTeamSettingsEvents();
     renderAllViews();
+    CloudSync.init();
   });
 
 })();

@@ -57,6 +57,15 @@
 
       <!-- Action Buttons -->
       <div class="header-actions">
+        <!-- Live Cloud Sync Status Pill -->
+        <div class="cloud-sync-pill" id="cloud-sync-pill" title="Sincronización en la nube en tiempo real con todo el equipo">
+          <span class="sync-indicator-dot dot-online" id="sync-dot"></span>
+          <span class="sync-status-text" id="sync-status-text">Equipo: Sincronizado</span>
+          <button id="btn-force-sync" class="btn-sync-refresh" title="Forzar sincronización manual">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
+        </div>
+
         <button class="btn btn-secondary btn-icon" id="btn-theme-toggle" title="Alternar Modo Oscuro/Claro">
           <span class="theme-icon-sun">☀️</span>
           <span class="theme-icon-moon">🌙</span>
@@ -543,6 +552,20 @@
                   <!-- Dynamic rows -->
                 </tbody>
               </table>
+            </div>
+
+            <!-- Cloud Real-Time Sync Status Box -->
+            <div class="cloud-sync-card-inline" style="margin-top: 1.25rem; padding: 1rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <div style="font-size: 1.5rem;">☁️</div>
+                <div>
+                  <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.15rem;">Sincronización en Tiempo Real para todo el Equipo</h4>
+                  <p style="font-size: 0.76rem; color: var(--text-secondary);" id="cloud-last-sync-time">Estado: Conectado a la Nube. Cambios compartidos automáticamente con todos los miembros.</p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-sm btn-primary" id="btn-settings-sync-now">🔄 Sincronizar Ahora</button>
+              </div>
             </div>
           </div>
         </div>
