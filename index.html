@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskTracer Pro | Control de Versiones, Pipeline QA & Changelog</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+  <div id="app" class="app-layout">
+    <!-- SIDEBAR / HEADER -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            <path d="M5 3v4"/>
+            <path d="M19 17v4"/>
+            <path d="M3 5h4"/>
+            <path d="M17 19h4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">TaskTracer <span class="badge-pro">PRO</span></span>
+          <span class="brand-subtitle">Release Lifecycle & QA Matrix</span>
+        </div>
+      </div>
+
+      <!-- Center Nav Tabs -->
+      <nav class="header-nav">
+        <button class="nav-tab active" data-view="grid" id="tab-grid-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <span>Vista Hoja (Excel)</span>
+        </button>
+        <button class="nav-tab" data-view="pipeline" id="tab-pipeline-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span>Pipeline & QA Flow</span>
+          <span class="nav-counter" id="pipeline-active-count">0</span>
+        </button>
+        <button class="nav-tab" data-view="changelog" id="tab-changelog-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Changelog Studio</span>
+        </button>
+        <button class="nav-tab" data-view="dashboard" id="tab-dashboard-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          <span>Métricas & Release</span>
+        </button>
+        <button class="nav-tab" data-view="settings" id="tab-settings-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Equipo & Ajustes</span>
+        </button>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-icon" id="btn-theme-toggle" title="Alternar Modo Oscuro/Claro">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+
+        <button class="btn btn-secondary" id="btn-version-manager">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Versiones</span>
+        </button>
+
+        <button class="btn btn-secondary" id="btn-data-export-import" title="Exportar / Importar Datos">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Backup</span>
+        </button>
+
+        <button class="btn btn-primary" id="btn-new-task">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Nueva Tarea</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SUB-BAR: CONTROLS, VERSION FILTER, SEARCH & STATS -->
+    <section class="control-bar">
+      <div class="filter-group">
+        <label class="control-label" for="filter-version">Versión:</label>
+        <div class="select-wrapper">
+          <select id="filter-version" class="form-select version-select">
+            <option value="all">📁 Todas las versiones</option>
+            <!-- Generated dynamically -->
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="control-label" for="filter-module">Módulo:</label>
+        <div class="select-wrapper">
+          <select id="filter-module" class="form-select">
+            <option value="all">Todos los módulos</option>
+            <!-- Generated dynamically -->
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="control-label" for="filter-status">Estado:</label>
+        <div class="select-wrapper">
+          <select id="filter-status" class="form-select">
+            <option value="all">Todos los estados</option>
+            <option value="PENDIENTE">⏳ Pendiente</option>
+            <option value="EN_DESARROLLO">💻 En Desarrollo (Dev)</option>
+            <option value="SMOKE_TEST_DEV">🧪 Flujo Completo Dev</option>
+            <option value="QA_REVIEW">🔍 Revisión QA</option>
+            <option value="OK">✅ OK / Completada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="input-search" placeholder="Buscar por ID, módulo, descripción, responsable..." autocomplete="off">
+        <button id="btn-clear-search" class="btn-clear hidden" title="Limpiar búsqueda">&times;</button>
+      </div>
+
+      <div class="quick-stats-pill" id="stats-pill">
+        <div class="stat-item"><span class="stat-dot dot-total"></span> <strong id="stat-total-tasks">0</strong> tareas</div>
+        <div class="stat-separator"></div>
+        <div class="stat-item"><span class="stat-dot dot-ok"></span> <strong id="stat-ok-tasks">0</strong> OK</div>
+        <div class="stat-separator"></div>
+        <div class="stat-item"><span class="stat-dot dot-pending"></span> <strong id="stat-pending-tasks">0</strong> En Proceso</div>
+        <div class="stat-progress-bar">
+          <div class="progress-fill" id="stat-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="main-content">
+      
+      <!-- ============================================== -->
+      <!-- VIEW 1: EXCEL / SPREADSHEET GRID VIEW          -->
+      <!-- ============================================== -->
+      <section id="view-grid" class="view-panel active">
+        <div class="view-toolbar">
+          <div class="toolbar-left">
+            <h2 class="view-title">Listado de Tareas por Versión</h2>
+            <span class="view-hint">Edición rápida inline, asignación ágil de responsables y paso directo al flujo QA.</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-sm btn-secondary" id="btn-quick-add-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Fila Rápida
+            </button>
+            <button class="btn btn-sm btn-secondary" id="btn-export-excel-csv">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Excel Table Container -->
+        <div class="excel-grid-container" id="excel-grid-wrapper">
+          <table class="excel-table" id="tasks-table">
+            <thead>
+              <tr>
+                <th style="width: 85px;" class="sortable" data-sort="id">ID <span class="sort-icon">↕</span></th>
+                <th style="width: 105px;" class="sortable" data-sort="version">Versión <span class="sort-icon">↕</span></th>
+                <th style="width: 130px;" class="sortable" data-sort="module">Módulo <span class="sort-icon">↕</span></th>
+                <th class="sortable" data-sort="description">Descripción / Tarea <span class="sort-icon">↕</span></th>
+                <th style="width: 130px;" class="sortable" data-sort="dev">Desarrollador <span class="sort-icon">↕</span></th>
+                <th style="width: 130px;" class="sortable" data-sort="qa">Revisor QA <span class="sort-icon">↕</span></th>
+                <th style="width: 160px;" class="sortable" data-sort="flowStatus">Flujo de Trabajo <span class="sort-icon">↕</span></th>
+                <th style="width: 120px;" class="sortable" data-sort="status">Estado <span class="sort-icon">↕</span></th>
+                <th style="width: 90px; text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+          <div id="table-empty-state" class="empty-state hidden">
+            <div class="empty-icon">🔍</div>
+            <h3>No se encontraron tareas</h3>
+            <p>Intenta ajustar los filtros de búsqueda o agrega una nueva tarea.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- VIEW 2: PIPELINE & QA FLOW BOARD               -->
+      <!-- ============================================== -->
+      <section id="view-pipeline" class="view-panel">
+        <div class="view-toolbar">
+          <div class="toolbar-left">
+            <h2 class="view-title">Pipeline de Desarrollo & Certificación de Casos de Uso</h2>
+            <span class="view-hint">Arrastra o abre cada tarjeta para registrar el Flujo Completo del Dev y la Matriz de Pruebas de QA.</span>
+          </div>
+          <div class="toolbar-right">
+            <div class="pipeline-version-badge" id="pipeline-current-version-badge">Versión: Todas</div>
+          </div>
+        </div>
+
+        <div class="pipeline-board" id="pipeline-board">
+          <!-- Column 1: Backlog -->
+          <div class="pipeline-column" data-stage="PENDIENTE" id="col-backlog">
+            <div class="column-header stage-backlog">
+              <div class="column-title">
+                <span class="stage-icon">📋</span>
+                <span>1. Backlog / Planificado</span>
+              </div>
+              <span class="column-count" id="count-backlog">0</span>
+            </div>
+            <div class="column-cards" id="cards-backlog"></div>
+          </div>
+
+          <!-- Column 2: Dev In Progress -->
+          <div class="pipeline-column" data-stage="EN_DESARROLLO" id="col-dev">
+            <div class="column-header stage-dev">
+              <div class="column-title">
+                <span class="stage-icon">💻</span>
+                <span>2. En Desarrollo</span>
+              </div>
+              <span class="column-count" id="count-dev">0</span>
+            </div>
+            <div class="column-cards" id="cards-dev"></div>
+          </div>
+
+          <!-- Column 3: Dev Smoke Test / Full Flow -->
+          <div class="pipeline-column" data-stage="SMOKE_TEST_DEV" id="col-smoke">
+            <div class="column-header stage-smoke">
+              <div class="column-title">
+                <span class="stage-icon">🧪</span>
+                <span>3. Flujo Completo Dev</span>
+              </div>
+              <span class="column-count" id="count-smoke">0</span>
+            </div>
+            <div class="column-cards" id="cards-smoke"></div>
+          </div>
+
+          <!-- Column 4: QA Use Cases Review -->
+          <div class="pipeline-column" data-stage="QA_REVIEW" id="col-qa">
+            <div class="column-header stage-qa">
+              <div class="column-title">
+                <span class="stage-icon">🔍</span>
+                <span>4. Revisión QA / Casos de Uso</span>
+              </div>
+              <span class="column-count" id="count-qa">0</span>
+            </div>
+            <div class="column-cards" id="cards-qa"></div>
+          </div>
+
+          <!-- Column 5: Done / Ready for Release -->
+          <div class="pipeline-column" data-stage="OK" id="col-ok">
+            <div class="column-header stage-ok">
+              <div class="column-title">
+                <span class="stage-icon">✅</span>
+                <span>5. Listo / OK para Release</span>
+              </div>
+              <span class="column-count" id="count-ok">0</span>
+            </div>
+            <div class="column-cards" id="cards-ok"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- VIEW 3: CHANGELOG STUDIO                       -->
+      <!-- ============================================== -->
+      <section id="view-changelog" class="view-panel">
+        <div class="view-toolbar">
+          <div class="toolbar-left">
+            <h2 class="view-title">Changelog Studio & Release Notes</h2>
+            <span class="view-hint">Generación automática y estructurada de cambios técnicos y notas para usuarios finales.</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-secondary" id="btn-copy-changelog">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              Copiar Markdown
+            </button>
+            <button class="btn btn-primary" id="btn-download-changelog">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar CHANGELOG.md
+            </button>
+          </div>
+        </div>
+
+        <div class="changelog-layout">
+          <!-- Left Configuration Panel -->
+          <div class="changelog-controls-card">
+            <h3>Configuración del Changelog</h3>
+            
+            <div class="form-group">
+              <label for="cl-version-select">Versión a generar:</label>
+              <select id="cl-version-select" class="form-select"></select>
+            </div>
+
+            <div class="form-group">
+              <label>Formato de Salida:</label>
+              <div class="radio-toggle-group">
+                <label class="radio-toggle">
+                  <input type="radio" name="cl-format" value="technical" checked id="cl-format-tech">
+                  <span class="radio-custom"></span>
+                  <div class="toggle-text">
+                    <strong>Técnico / Dev & QA</strong>
+                    <small>Incluye IDs, módulos, detalles técnicos, casos validados y autor.</small>
+                  </div>
+                </label>
+                <label class="radio-toggle">
+                  <input type="radio" name="cl-format" value="executive" id="cl-format-exec">
+                  <span class="radio-custom"></span>
+                  <div class="toggle-text">
+                    <strong>Notas de Versión (Clientes / Negocio)</strong>
+                    <small>Resumen ejecutivo de mejoras y correcciones listo para presentar.</small>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Opciones Adicionales:</label>
+              <div class="checkbox-group">
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="cl-opt-include-pending" checked>
+                  <span class="checkmark"></span>
+                  <span>Incluir tareas en proceso (identificadas como pendientes)</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="cl-opt-group-module" checked>
+                  <span class="checkmark"></span>
+                  <span>Agrupar por Módulo de la aplicación</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="cl-opt-include-stats" checked>
+                  <span class="checkmark"></span>
+                  <span>Incluir resumen estadístico de la versión</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="version-meta-box" id="cl-version-summary-box">
+              <!-- Dynamic version meta info -->
+            </div>
+          </div>
+
+          <!-- Right Preview Container -->
+          <div class="changelog-preview-card">
+            <div class="preview-header">
+              <div class="preview-tabs">
+                <button class="preview-tab active" id="btn-preview-rendered">Vista Previa Formateada</button>
+                <button class="preview-tab" id="btn-preview-raw">Código Markdown Raw</button>
+              </div>
+              <span class="preview-badge" id="cl-preview-status-badge">Generado en Tiempo Real</span>
+            </div>
+
+            <div class="preview-body" id="changelog-rendered-view">
+              <!-- Rendered Markdown HTML -->
+            </div>
+            <textarea class="preview-raw hidden" id="changelog-raw-view" readonly spellcheck="false"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- VIEW 4: METRICS & RELEASE DASHBOARD            -->
+      <!-- ============================================== -->
+      <section id="view-dashboard" class="view-panel">
+        <div class="view-toolbar">
+          <div class="toolbar-left">
+            <h2 class="view-title">Control de Versiones & Métricas del Equipo</h2>
+            <span class="view-hint">Monitorea el avance por versión, cuellos de botella en QA/Dev y cobertura de pruebas.</span>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Top Stat Cards -->
+          <div class="dash-card stat-summary-card">
+            <div class="stat-big-icon">🚀</div>
+            <div class="stat-big-info">
+              <span class="stat-big-label">Versión Activa Principal</span>
+              <h3 class="stat-big-value" id="dash-active-version-name">1.0.20</h3>
+              <p class="stat-big-sub" id="dash-active-version-status">En Desarrollo & QA</p>
+            </div>
+          </div>
+
+          <div class="dash-card stat-summary-card">
+            <div class="stat-big-icon">📈</div>
+            <div class="stat-big-info">
+              <span class="stat-big-label">Completitud Global</span>
+              <h3 class="stat-big-value" id="dash-global-rate">0%</h3>
+              <p class="stat-big-sub" id="dash-global-rate-sub">0 de 0 tareas cerradas (OK)</p>
+            </div>
+          </div>
+
+          <div class="dash-card stat-summary-card">
+            <div class="stat-big-icon">🧪</div>
+            <div class="stat-big-info">
+              <span class="stat-big-label">Validación de Casos de Uso</span>
+              <h3 class="stat-big-value" id="dash-qa-rate">0%</h3>
+              <p class="stat-big-sub" id="dash-qa-rate-sub">Casos de prueba aprobados</p>
+            </div>
+          </div>
+
+          <div class="dash-card stat-summary-card">
+            <div class="stat-big-icon">👥</div>
+            <div class="stat-big-info">
+              <span class="stat-big-label">Equipo Activo</span>
+              <h3 class="stat-big-value" id="dash-team-count">0</h3>
+              <p class="stat-big-sub">Desarrolladores & QA asignados</p>
+            </div>
+          </div>
+
+          <!-- Progress by Version Table Card -->
+          <div class="dash-card full-width">
+            <div class="card-header">
+              <h3>Estado Comparativo por Versión</h3>
+              <span class="card-subtitle">Seguimiento estricto del ciclo de vida de cada versión</span>
+            </div>
+            <div class="version-table-container">
+              <table class="dashboard-table" id="dash-versions-table">
+                <thead>
+                  <tr>
+                    <th>Versión</th>
+                    <th>Estado de Release</th>
+                    <th>Total Tareas</th>
+                    <th>Devs / QA</th>
+                    <th>Progreso</th>
+                    <th>% OK</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-versions-tbody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Modules Breakdown Card -->
+          <div class="dash-card half-width">
+            <div class="card-header">
+              <h3>Distribución por Módulos</h3>
+              <span class="card-subtitle">Áreas con mayor impacto de cambios</span>
+            </div>
+            <div class="module-distribution-list" id="dash-module-list">
+              <!-- Rendered items -->
+            </div>
+          </div>
+
+          <!-- Workflow Bottlenecks Card -->
+          <div class="dash-card half-width">
+            <div class="card-header">
+              <h3>Pipeline Health & Cuellos de Botella</h3>
+              <span class="card-subtitle">Distribución actual de tareas por etapa</span>
+            </div>
+            <div class="pipeline-health-container" id="dash-pipeline-health">
+              <!-- Rendered progress bars -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- VIEW 5: SETTINGS & TEAM MANAGEMENT             -->
+      <!-- ============================================== -->
+      <section id="view-settings" class="view-panel">
+        <div class="view-toolbar">
+          <div class="toolbar-left">
+            <h2 class="view-title">Configuración del Equipo y Ajustes</h2>
+            <span class="view-hint">Administra los miembros del equipo (Desarrolladores, QA Leads) para asignarlos mediante listas a las tareas.</span>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+          <!-- Left: Add/Edit User Form Card -->
+          <div class="settings-card">
+            <div class="card-header">
+              <h3 id="user-form-title">+ Registrar Nuevo Usuario</h3>
+              <span class="card-subtitle">Crea miembros del equipo para asignarlos en Desarrollo y QA</span>
+            </div>
+
+            <form id="team-user-form">
+              <input type="hidden" id="u-form-edit-id" value="">
+              
+              <div class="form-group">
+                <label for="u-input-name">Nombre y Apellido *</label>
+                <input type="text" id="u-input-name" class="form-control" placeholder="Ej: David Hernández" required>
+              </div>
+
+              <div class="form-group">
+                <label for="u-input-role">Rol Principal *</label>
+                <select id="u-input-role" class="form-select" required>
+                  <option value="DEV">💻 Desarrollador (Dev)</option>
+                  <option value="QA">🔍 Ingeniero / Revisor QA</option>
+                  <option value="LEAD">👑 Tech Lead / Arquitecto</option>
+                  <option value="PO">📋 Product Owner / Negocio</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="u-input-email">Email / Alias Git</label>
+                <input type="text" id="u-input-email" class="form-control font-mono" placeholder="david.hernandez@empresa.com">
+              </div>
+
+              <div class="form-group">
+                <label for="u-input-color">Color de Avatar / Identificador</label>
+                <div class="color-picker-row">
+                  <input type="color" id="u-input-color" class="form-color-picker" value="#38bdf8">
+                  <span class="color-sample-label">Color distintivo para iniciales</span>
+                </div>
+              </div>
+
+              <div class="form-actions-row" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary btn-block" id="btn-save-user">Guardar Usuario</button>
+                <button type="button" class="btn btn-secondary hidden" id="btn-cancel-edit-user">Cancelar</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Team Members Table / List -->
+          <div class="settings-card flex-2">
+            <div class="card-header">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h3>Directorio de Usuarios Registrados</h3>
+                  <span class="card-subtitle">Listado de usuarios disponibles para asignación directa en tareas</span>
+                </div>
+                <span class="badge-status badge-status-dev" id="users-total-count">0 Usuarios</span>
+              </div>
+            </div>
+
+            <div class="team-table-container">
+              <table class="dashboard-table" id="team-users-table">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Email / Alias</th>
+                    <th>Tareas como Dev</th>
+                    <th>Tareas como QA</th>
+                    <th style="text-align: right;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="team-users-tbody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODAL 1: TASK WORKFLOW & AUDIT MODAL (MAIN)    -->
+    <!-- ============================================== -->
+    <div class="modal-overlay hidden" id="task-modal">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <div class="modal-tags">
+              <span class="task-id-badge" id="m-task-id">10024</span>
+              <span class="version-tag" id="m-task-version-tag">1.0.20</span>
+              <span class="module-tag" id="m-task-module-tag">Caja</span>
+              <span class="status-badge" id="m-task-status-badge">Pendiente</span>
+            </div>
+            <h2 class="modal-title" id="m-task-title-display">Ingreso y salida de dinero</h2>
+          </div>
+          <button class="modal-close" id="btn-close-task-modal">&times;</button>
+        </div>
+
+        <!-- Workflow Wizard Step Navigator -->
+        <div class="workflow-stepper">
+          <button class="step-btn active" data-step="1">
+            <div class="step-num">1</div>
+            <div class="step-info">
+              <span class="step-label">Definición</span>
+              <span class="step-sub">General & Módulo</span>
+            </div>
+          </button>
+          <div class="step-line"></div>
+
+          <button class="step-btn" data-step="2">
+            <div class="step-num">2</div>
+            <div class="step-info">
+              <span class="step-label">Desarrollo (Dev)</span>
+              <span class="step-sub">Asignación & Código</span>
+            </div>
+          </button>
+          <div class="step-line"></div>
+
+          <button class="step-btn" data-step="3">
+            <div class="step-num">3</div>
+            <div class="step-info">
+              <span class="step-label">Flujo Completo Dev</span>
+              <span class="step-sub">Smoke / Sanity Test</span>
+            </div>
+          </button>
+          <div class="step-line"></div>
+
+          <button class="step-btn" data-step="4">
+            <div class="step-num">4</div>
+            <div class="step-info">
+              <span class="step-label">Revisión QA</span>
+              <span class="step-sub">Casos de Uso & Feedback</span>
+            </div>
+          </button>
+          <div class="step-line"></div>
+
+          <button class="step-btn" data-step="5">
+            <div class="step-num">5</div>
+            <div class="step-info">
+              <span class="step-label">Changelog & Cierre</span>
+              <span class="step-sub">Release Ready</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Modal Body Tabs -->
+        <div class="modal-body">
+          <form id="task-detail-form">
+            <input type="hidden" id="m-task-raw-id">
+
+            <!-- STEP 1: DEFINICION GENERAL -->
+            <div class="step-pane active" data-step-pane="1">
+              <div class="form-grid">
+                <div class="form-group col-4">
+                  <label for="m-input-version">Versión Asignada *</label>
+                  <select id="m-input-version" class="form-select" required></select>
+                </div>
+                <div class="form-group col-4">
+                  <label for="m-input-module">Módulo / Área *</label>
+                  <input type="text" id="m-input-module" class="form-control" list="modules-datalist" placeholder="Ej: Venta, Caja, Stock, Boleta..." required>
+                  <datalist id="modules-datalist"></datalist>
+                </div>
+                <div class="form-group col-4">
+                  <label for="m-input-type">Tipo de Tarea</label>
+                  <select id="m-input-type" class="form-select">
+                    <option value="Mejora">✨ Mejora / Feature</option>
+                    <option value="Corrección">🐛 Corrección / Bugfix</option>
+                    <option value="Nuevo">🚀 Nuevo Proceso</option>
+                    <option value="Seguridad / Validación">🛡️ Validación / Bloqueo</option>
+                    <option value="UI/UX">🎨 UI / Formato</option>
+                    <option value="Configuración">⚙️ Configuración</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-12">
+                  <label for="m-input-desc">Descripción / Requerimiento *</label>
+                  <input type="text" id="m-input-desc" class="form-control font-semibold" placeholder="Descripción clara y concisa de la mejora o corrección..." required>
+                </div>
+
+                <div class="form-group col-12">
+                  <label for="m-input-details">Detalles Ampliados & Especificaciones de Negocio</label>
+                  <textarea id="m-input-details" class="form-control" rows="3" placeholder="Contexto adicional, reglas de negocio, mensajes de error esperados, validaciones..."></textarea>
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="m-input-priority">Prioridad</label>
+                  <select id="m-input-priority" class="form-select">
+                    <option value="Alta">🔴 Alta (Crítica para el Release)</option>
+                    <option value="Media" selected>🟡 Media (Normal)</option>
+                    <option value="Baja">🟢 Baja (Menor)</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="m-input-flow-state">Estado Global del Flujo</label>
+                  <select id="m-input-flow-state" class="form-select">
+                    <option value="PENDIENTE">⏳ Pendiente</option>
+                    <option value="EN_DESARROLLO">💻 En Desarrollo (Dev)</option>
+                    <option value="SMOKE_TEST_DEV">🧪 Flujo Completo Dev (Smoke Test)</option>
+                    <option value="QA_REVIEW">🔍 En Revisión QA (Casos de Uso)</option>
+                    <option value="OK">✅ OK / Completada</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: DESARROLLO (DEV) -->
+            <div class="step-pane" data-step-pane="2">
+              <div class="info-banner banner-dev">
+                <div class="banner-icon">💻</div>
+                <div>
+                  <strong>Fase 1: Desarrollo e Implementación</strong>
+                  <p>Asigna al desarrollador responsable, documenta la solución técnica, ramas de Git o Pull Requests asociados.</p>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group col-6">
+                  <label for="m-input-dev">Desarrollador Responsable (Lista de Usuarios)</label>
+                  <select id="m-input-dev" class="form-select"></select>
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="m-input-dev-branch">Rama / PR / Commit</label>
+                  <input type="text" id="m-input-dev-branch" class="form-control font-mono" placeholder="feature/10024-caja-ingreso">
+                </div>
+
+                <div class="form-group col-12">
+                  <label for="m-input-dev-notes">Observaciones Técnicas del Desarrollador</label>
+                  <textarea id="m-input-dev-notes" class="form-control font-mono" rows="4" placeholder="Detalle de archivos modificados, endpoints involucrados, consideraciones técnicas..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: FLUJO COMPLETO POR DEV (SMOKE / SANITY TEST) -->
+            <div class="step-pane" data-step-pane="3">
+              <div class="info-banner banner-smoke">
+                <div class="banner-icon">🧪</div>
+                <div>
+                  <strong>Fase 2: Certificación de Flujo Completo por el Desarrollador</strong>
+                  <p>Antes de entregar a QA, el desarrollador que codificó la tarea <strong>debe ejecutar el flujo completo de la aplicación</strong> para garantizar que los flujos críticos sigan operativos y no existan regresiones.</p>
+                </div>
+              </div>
+
+              <div class="checklist-section">
+                <div class="section-header-row">
+                  <h4>Checklist de Validación de Flujo Completo (Sanity Check)</h4>
+                  <button type="button" class="btn btn-sm btn-outline" id="btn-add-smoke-item">+ Agregar Punto de Chequeo</button>
+                </div>
+                
+                <div class="checklist-items" id="smoke-checklist-container">
+                  <!-- Generated items -->
+                </div>
+              </div>
+
+              <div class="certification-box">
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="m-input-dev-certified">
+                  <span class="checkmark"></span>
+                  <span class="cert-text">
+                    <strong>Certifico que he ejecutado el flujo completo de la aplicación</strong> y verifiqué que esta corrección/mejora funciona correctamente sin romper funcionalidades existentes.
+                  </span>
+                </label>
+                <div class="cert-meta" id="m-dev-cert-meta"></div>
+              </div>
+
+              <div class="form-group col-12" style="margin-top: 15px;">
+                <label for="m-input-smoke-notes">Observaciones del Flujo Completo (Dev)</label>
+                <textarea id="m-input-smoke-notes" class="form-control" rows="2" placeholder="Ej: Se probó login, generación de boleta y cierre de caja sin errores."></textarea>
+              </div>
+            </div>
+
+            <!-- STEP 4: REVISIÓN CRUZADA QA & CASOS DE USO -->
+            <div class="step-pane" data-step-pane="4">
+              <div class="info-banner banner-qa">
+                <div class="banner-icon">🔍</div>
+                <div>
+                  <strong>Fase 3: Revisión Cruzada de Casos de Uso (QA / Peer Review)</strong>
+                  <p>Un segundo integrante del equipo verifica los casos de uso específicos de las mejoras/correcciones aplicadas y aprueba o rechaza con observaciones.</p>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group col-6">
+                  <label for="m-input-qa">Revisor QA Asignado (Lista de Usuarios)</label>
+                  <select id="m-input-qa" class="form-select"></select>
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="m-input-qa-status">Dictamen de QA</label>
+                  <select id="m-input-qa-status" class="form-select">
+                    <option value="PENDIENTE">⏳ Pendiente de Revisión</option>
+                    <option value="EN_PRUEBAS">🧪 En Ejecución de Pruebas</option>
+                    <option value="APROBADO">✅ Casos de Uso APROBADOS</option>
+                    <option value="OBSERVADO">⚠️ Con Observaciones (Requiere Ajuste Dev)</option>
+                    <option value="RECHAZADO">❌ Rechazado (No cumple requerimiento)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Test Cases Matrix -->
+              <div class="use-cases-section">
+                <div class="section-header-row">
+                  <h4>Matriz de Casos de Uso Evaluados</h4>
+                  <button type="button" class="btn btn-sm btn-outline" id="btn-add-use-case">+ Agregar Caso de Uso</button>
+                </div>
+                <div class="use-cases-list" id="qa-cases-container">
+                  <!-- Generated dynamic test cases -->
+                </div>
+              </div>
+
+              <div class="form-group col-12" style="margin-top: 15px;">
+                <label for="m-input-qa-feedback">Observaciones y Hallazgos de QA</label>
+                <textarea id="m-input-qa-feedback" class="form-control" rows="3" placeholder="Comentarios detallados de QA, evidencias de prueba, casos de borde detectados..."></textarea>
+              </div>
+            </div>
+
+            <!-- STEP 5: CHANGELOG & AUDITORIA -->
+            <div class="step-pane" data-step-pane="5">
+              <div class="info-banner banner-changelog">
+                <div class="banner-icon">📝</div>
+                <div>
+                  <strong>Fase 4: Entrada de Changelog y Cierre</strong>
+                  <p>Redacción técnica y ejecutiva que se incluirá en el CHANGELOG oficial de la versión.</p>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group col-12">
+                  <label for="m-input-changelog-tech">Entrada Técnica para el Changelog</label>
+                  <input type="text" id="m-input-changelog-tech" class="form-control font-mono" placeholder="Ej: [Caja] Refactorizado flujo de arqueo con bloqueo preventivo de concurrencia.">
+                </div>
+
+                <div class="form-group col-12">
+                  <label for="m-input-changelog-user">Nota para el Usuario / Cliente (Release Notes)</label>
+                  <input type="text" id="m-input-changelog-user" class="form-control" placeholder="Ej: Se optimizó el proceso de caja evitando duplicación de impresiones.">
+                </div>
+
+                <div class="form-group col-12">
+                  <label>Historial de Actividad y Observaciones</label>
+                  <div class="audit-timeline" id="task-audit-timeline">
+                    <!-- Timeline items -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="modal-footer">
+          <div class="footer-left">
+            <button type="button" class="btn btn-danger-outline" id="btn-delete-task">Eliminar Tarea</button>
+          </div>
+          <div class="footer-right">
+            <button type="button" class="btn btn-secondary" id="btn-modal-prev-step" style="display: none;">← Anterior</button>
+            <button type="button" class="btn btn-secondary" id="btn-modal-next-step">Siguiente →</button>
+            <button type="button" class="btn btn-primary" id="btn-save-task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Guardar Cambios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL 2: VERSION MANAGER                       -->
+    <!-- ============================================== -->
+    <div class="modal-overlay hidden" id="version-modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <h2 class="modal-title">Gestión de Versiones y Ciclos de Release</h2>
+            <p class="modal-subtitle">Configura nuevas versiones, estados de entrega y paletas de colores.</p>
+          </div>
+          <button class="modal-close" id="btn-close-version-modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="version-manager-layout">
+            <!-- Add New Version Form -->
+            <div class="version-add-card">
+              <h4>+ Crear Nueva Versión</h4>
+              <form id="new-version-form">
+                <div class="form-group">
+                  <label for="v-name">Número de Versión (SemVer) *</label>
+                  <input type="text" id="v-name" class="form-control font-mono" placeholder="Ej: 1.0.21" required>
+                </div>
+                <div class="form-group">
+                  <label for="v-color">Color Distintivo *</label>
+                  <div class="color-picker-row">
+                    <input type="color" id="v-color" class="form-color-picker" value="#9333ea">
+                    <span class="color-sample-label">Color de identificación en tablas</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="v-status">Estado del Release</label>
+                  <select id="v-status" class="form-select">
+                    <option value="PLANIFICADA">📋 Planificada (Borrador)</option>
+                    <option value="EN_DESARROLLO" selected>💻 En Desarrollo</option>
+                    <option value="QA_FREEZE">❄️ En QA / Code Freeze</option>
+                    <option value="LIBERADA">🚀 Liberada / En Producción</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="v-target-date">Fecha Objetivo de Release</label>
+                  <input type="date" id="v-target-date" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="v-description">Objetivo / Alcance de la Versión</label>
+                  <textarea id="v-description" class="form-control" rows="2" placeholder="Ej: Mejoras críticas de facturación y módulo offline."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Guardar Versión</button>
+              </form>
+            </div>
+
+            <!-- Existing Versions List -->
+            <div class="versions-list-wrapper">
+              <h4>Versiones Registradas</h4>
+              <div class="versions-list" id="versions-list-container">
+                <!-- Rendered version cards -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL 3: DATA EXPORT & IMPORT BACKUP           -->
+    <!-- ============================================== -->
+    <div class="modal-overlay hidden" id="backup-modal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2 class="modal-title">Copia de Seguridad y Transferencia</h2>
+          <button class="modal-close" id="btn-close-backup-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="backup-options">
+            <div class="backup-card">
+              <div class="backup-icon">📥</div>
+              <div class="backup-info">
+                <h4>Exportar Backup Completo (JSON)</h4>
+                <p>Descarga todas las tareas, versiones, matrices QA y notas para respaldo o transferir a otro equipo.</p>
+                <button class="btn btn-secondary" id="btn-download-json-backup">Descargar JSON</button>
+              </div>
+            </div>
+
+            <div class="backup-card">
+              <div class="backup-icon">📤</div>
+              <div class="backup-info">
+                <h4>Restaurar / Importar Backup (JSON)</h4>
+                <p>Carga un archivo JSON previamente exportado para restaurar tu base de datos.</p>
+                <input type="file" id="input-json-file" accept=".json" style="display: none;">
+                <button class="btn btn-secondary" id="btn-trigger-file-import">Seleccionar Archivo JSON</button>
+              </div>
+            </div>
+
+            <div class="backup-card">
+              <div class="backup-icon">🔄</div>
+              <div class="backup-info">
+                <h4>Restablecer Datos de Ejemplo</h4>
+                <p>Vuelve a cargar la lista original de la captura (IDs 10011 a 10032).</p>
+                <button class="btn btn-danger-outline" id="btn-reset-demo-data">Restablecer Datos</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
